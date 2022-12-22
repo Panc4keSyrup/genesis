@@ -131,7 +131,7 @@ pub mod pallet {
 	#[pallet::genesis_build]
 	impl<T:Config> GenesisBuild<T> for GenesisConfig<T> {
 		fn build(&self) {
-			let genesis_dna = vec![1, 22];
+			let genesis_dna = vec![1, 22, 003, 4004];
 			for item in self.genesis_kitties.iter() {
 			let build_kitty = Kitty {
 				dna: genesis_dna.clone(),
