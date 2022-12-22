@@ -153,9 +153,8 @@ fn testnet_genesis(
 		},
 		transaction_payment: Default::default(),
 		kitties: KittiesConfig {
+			genesis_kitties: vec![1, 22, 333, 444].as_slice().to_vec(),
 			owner: Some(get_account_id_from_seed::<sr25519::Public>("Alice")),
-			dna1 : vec![1u8],
-			dna2 : vec![2u8],
 		}
 	}
 }
