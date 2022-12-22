@@ -114,18 +114,16 @@ pub mod pallet {
 
 	#[pallet::genesis_config]
 	pub struct GenesisConfig<T:Config> {
-		pub owner : Option<T::AccountId>,
-		pub dna1 : Vec<u8>,
-		pub dna2 : Vec<u8>,
+		pub genesis_kitties : Vec<Vec<u8>>,
+        pub owner: Option<T::AccountId>,
 	}
 
 	#[cfg(feature = "std")]
 	impl<T:Config> Default for GenesisConfig<T> {
 		fn default() -> GenesisConfig<T> {
 			GenesisConfig {
-				owner: Default::default(),
-				dna1 : Vec::new(),
-				dna2 : Vec::new(),
+				genesis_kitties : Vec::new(),
+        		owner: Default::default(),
 			}
 		}
 	}
@@ -133,24 +131,22 @@ pub mod pallet {
 	#[pallet::genesis_build]
 	impl<T:Config> GenesisBuild<T> for GenesisConfig<T> {
 		fn build(&self) {
+			let genesis_dna = vec![1, 22];
+			for item in self.genesis_kitties.iter() {
+			let build_kitty = Kitty {
+				dna: genesis_dna.clone(),
+				price: 0,
+				owner: self.owner.clone().unwrap(),
+				gender: Pallet::<T>::gen_gender(&genesis_dna).unwrap(),
+				created_date: 0,
+			};
 
-			let gender1 = Pallet::<T>::gen_gender(&self.dna1);
-			let kitty = Kitty::<T> { dna: self.dna1.clone(), price: 0, gender: gender1.unwrap(), owner: self.owner.clone().unwrap(), created_date: 0, };
-
-			let gender2 = Pallet::<T>::gen_gender(&self.dna2);
-			let kitty = Kitty::<T> { dna: self.dna2.clone(), price: 0, gender: gender2.unwrap(), owner: self.owner.clone().unwrap(), created_date: 0, };
-
-
-			<KittiesOwned<T>>::try_mutate(&self.owner.clone().unwrap(), |kitty_vec| {
-				kitty_vec.try_push(self.dna1.clone())
+			<KittiesOwned<T>>::try_mutate(&self.owner.unwrap(), |kitty_vec| {
+				kitty_vec.try_push(genesis_dna.clone())
 			});
-			Kitties::<T>::insert(self.dna1.clone(), kitty.clone());
-			<KittiesOwned<T>>::try_mutate(&self.owner.clone().unwrap(), |kitty_vec| {
-				kitty_vec.try_push(self.dna2.clone())
-			});
-			Kitties::<T>::insert(self.dna2.clone(), kitty.clone());
-
-			KittyId::<T>::put(2);
+			Kitties::<T>::insert(genesis_dna.clone(), build_kitty.clone());
+			KittyId::<T>::put(self.genesis_kitties.len());
+		}
 		}
 	}
 
