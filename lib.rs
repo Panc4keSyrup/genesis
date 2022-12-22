@@ -137,7 +137,7 @@ pub mod pallet {
 				dna: genesis_dna.clone(),
 				price: 0,
 				owner: self.owner.clone().unwrap(),
-				gender: Pallet::<T>::gen_gender(&genesis_dna).unwrap(),
+				gender: Pallet::<T>::gen_gender(&genesis_dna.as_slice().to_vec()).unwrap(),
 				created_date: 0,
 			};
 
