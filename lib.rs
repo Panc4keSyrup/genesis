@@ -114,7 +114,7 @@ pub mod pallet {
 
 	#[pallet::genesis_config]
 	pub struct GenesisConfig<T:Config> {
-		pub genesis_kitties : Vec<Vec<u8>>,
+		pub genesis_kitties : Vec<u8>,
         pub owner: Option<T::AccountId>,
 	}
 
@@ -131,21 +131,25 @@ pub mod pallet {
 	#[pallet::genesis_build]
 	impl<T:Config> GenesisBuild<T> for GenesisConfig<T> {
 		fn build(&self) {
-			let genesis_dna = vec![1, 22, 003, 4004];
-			for item in self.genesis_kitties.iter() {
+			let mut i = 0;
+			for item in &self.genesis_kitties {
+			let mut dna = vec![1u8, 2u8, 3u8];
+			let mut vecdna = vec![dna[i]];
+			let mut gender = Pallet::<T>::gen_gender(&vecdna).unwrap();
 			let build_kitty = Kitty {
-				dna: genesis_dna.clone(),
+				dna: vecdna,
 				price: 0,
 				owner: self.owner.clone().unwrap(),
-				gender: Pallet::<T>::gen_gender(&genesis_dna.as_slice().to_vec()).unwrap(),
+				gender,
 				created_date: 0,
 			};
 
-			<KittiesOwned<T>>::try_mutate(&self.owner.unwrap(), |kitty_vec| {
-				kitty_vec.try_push(genesis_dna.clone())
+			<KittiesOwned<T>>::try_mutate(&self.owner.clone().unwrap(), |kitty_vec| {
+				kitty_vec.try_push(build_kitty.dna.clone())
 			});
-			Kitties::<T>::insert(genesis_dna.clone(), build_kitty.clone());
-			KittyId::<T>::put(self.genesis_kitties.len());
+			Kitties::<T>::insert(build_kitty.dna.clone(), build_kitty.clone());
+			KittyId::<T>::put(self.genesis_kitties.len() as u32);
+			i = i + 1;
 		}
 		}
 	}
@@ -175,7 +179,7 @@ pub mod pallet {
 				kitty_vec.try_push(dna.clone())
 			  }).map_err(|_| <Error<T>>::ExceedMaxKittyOwned)?;
 
-			Kitties::<T>::insert(dna.clone(), kitty.clone());
+			// Kitties::<T>::insert(dna.clone(), kitty.clone());
 			KittyId::<T>::put(next_id);
 			log::info!("New kitty:{:?}", kitty);
 			Self::deposit_event(Event::Created { kitty: dna, owner: owner.clone(), timestamp: created_date.clone()});
